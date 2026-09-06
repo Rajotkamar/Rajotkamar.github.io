@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#060918" />
+  <title>AR INOVATION HUB Energy Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="assets/ar-inovation-hub.png" type="image/png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"><img id="brandLogo" src="assets/ar-inovation-hub.png" alt="AR INOVATION HUB logo"><span id="brandLogoFallback" hidden>te<span>.</span></span></div>
+        <div>
+          <strong id="brandName">AR INOVATION HUB</strong>
+          <small id="sidebarStatus">System Online</small>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-page="dashboard"><i class="fa-solid fa-house"></i><span>Dashboard</span></button>
+        <button class="nav-item" data-page="analytics"><i class="fa-solid fa-chart-line"></i><span>Analytics</span></button>
+        <button class="nav-item" data-page="energy"><i class="fa-solid fa-bolt"></i><span>Energy</span></button>
+        <button class="nav-item" data-page="alerts"><i class="fa-solid fa-triangle-exclamation"></i><span>Alerts</span><b id="alertBadge" class="nav-badge">0</b></button>
+        <button class="nav-item" data-page="reports"><i class="fa-regular fa-file-lines"></i><span>Reports</span></button>
+        <button class="nav-item" data-page="settings"><i class="fa-solid fa-gear"></i><span>Settings</span></button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="connection-card">
+          <span class="pulse-dot"></span>
+          <div>
+            <b id="connectionTitle">Connected</b>
+            <small>ESP32 • PZEM-004T v3.0</small>
+          </div>
+        </div>
+        <div class="sidebar-footer">AR INOVATION HUB<br><span>PZEM-004T v3.0</span></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="mobile-brand"><div class="brand-mark"><img id="mobileBrandLogo" src="assets/ar-inovation-hub.png" alt="AR INOVATION HUB logo"><span id="mobileBrandLogoFallback" hidden>te<span>.</span></span></div><strong id="mobileBrandName">AR INOVATION HUB</strong></div>
+        <div class="topbar-meta">
+          <span class="status-pill online" id="statusPill"><i class="fa-solid fa-circle"></i><span id="connectionStatus">System Online</span></span>
+          <span class="topbar-time" id="clock">--:--:--</span>
+          <button class="icon-btn mobile-menu" id="mobileMenu"><i class="fa-solid fa-bars"></i></button>
+          <button class="icon-btn" id="exportBtn" title="Export current page"><i class="fa-solid fa-download"></i></button>
+          <button class="icon-btn" id="settingsBtn" title="Open settings"><i class="fa-solid fa-gear"></i></button>
+        </div>
+      </header>
+
+      <section class="content">
+        <!-- DASHBOARD -->
+        <section class="page active" id="page-dashboard">
+          <div class="page-title">
+            <div>
+              <div class="eyebrow"><span class="live-dot"></span> LIVE MONITORING</div>
+              <h1>Dashboard</h1>
+              <p>Real-time energy monitoring from your connected ESP32 + PZEM sensor.</p>
+            </div>
+            <div class="title-actions">
+              <button class="ghost-btn" data-range="live"><i class="fa-solid fa-wave-square"></i> Live</button>
+              <button class="primary-btn" id="dashboardExport"><i class="fa-solid fa-download"></i> Export</button>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="card power-hero">
+              <div class="card-head">
+                <div class="head-title"><span class="icon-glow purple"><i class="fa-solid fa-plug"></i></span><div><h3>Active Power</h3><small>Current load</small></div></div>
+                <span class="mini-status">LIVE</span>
+              </div>
+              <div class="power-hero-body">
+                <div class="big-number" id="powerVal">0.0</div><div class="unit-label">WATTS</div>
+              </div>
+              <div class="power-track"><div class="power-fill" id="powerBar"></div></div>
+              <div class="hero-foot"><span>0 W</span><span id="powerCapacity">Capacity 3000 W</span></div>
+              <div class="hero-glow"></div>
+            </article>
+
+            <article class="card metric-card">
+              <div class="card-head"><div class="head-title"><span class="icon-glow orange"><i class="fa-solid fa-bolt"></i></span><h3>Voltage</h3></div><span class="metric-trend positive" id="voltTrend">+0.0%</span></div>
+              <div class="metric-value"><strong id="voltVal">0.0</strong><span>V</span></div>
+              <div class="sparkline-wrap"><canvas id="voltageSpark"></canvas></div>
+            </article>
+
+            <article class="card metric-card">
+              <div class="card-head"><div class="head-title"><span class="icon-glow blue"><i class="fa-solid fa-wave-square"></i></span><h3>Current</h3></div><span class="metric-trend positive" id="currTrend">+0.0%</span></div>
+              <div class="metric-value"><strong id="currVal">0.00</strong><span>A</span></div>
+              <div class="sparkline-wrap"><canvas id="currentSpark"></canvas></div>
+            </article>
+
+            <article class="card chart-card large">
+              <div class="card-head"><div><h3>Live Usage History</h3><small>Active power over time</small></div><div class="chart-actions"><button class="range-btn active">1H</button><button class="range-btn">6H</button><button class="range-btn">1D</button></div></div>
+              <div class="chart-container"><canvas id="powerChart"></canvas></div>
+            </article>
+
+            <article class="card stat-card">
+              <div class="stat-icon purple"><i class="fa-solid fa-chart-simple"></i></div>
+              <div><small>Total Energy</small><strong id="energyVal">0.00 kWh</strong><span class="subtext">Since last reset</span></div>
+            </article>
+            <article class="card stat-card">
+              <div class="stat-icon green"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+              <div><small>Est. Bill <span id="rateLabel">(@ ₹7.00/u)</span></small><strong id="billVal">₹ 0.00</strong><span class="subtext">Current tariff</span></div>
+            </article>
+            <article class="card stat-card">
+              <div class="stat-icon blue"><i class="fa-solid fa-gauge-high"></i></div>
+              <div><small>Power Factor</small><strong id="pfVal">0.00</strong><span class="subtext">Target ≥ 0.90</span></div>
+            </article>
+          </div>
+
+          <div class="section-grid two">
+            <article class="card insight-card">
+              <div class="card-head"><div><h3>System Health</h3><small>Live device telemetry</small></div><span class="health-ok"><i class="fa-solid fa-check"></i> Healthy</span></div>
+              <div class="health-grid">
+                <div><span>Frequency</span><strong><span id="freqVal">50.0</span> Hz</strong></div>
+                <div><span>Uptime</span><strong id="uptimeVal">00:00:00</strong></div>
+                <div><span>Signal</span><strong id="wifiVal">Excellent</strong></div>
+                <div><span>Data mode</span><strong id="dataMode">Not configured</strong></div>
+              </div>
+            </article>
+            <article class="card insight-card">
+              <div class="card-head"><div><h3>Threshold Monitor</h3><small>Configured safety limits</small></div></div>
+              <div class="threshold-row"><span>Overload</span><div class="thin-track"><i id="thresholdPower"></i></div><b id="thresholdPowerText">0%</b></div>
+              <div class="threshold-row"><span>Current</span><div class="thin-track"><i id="thresholdCurrent"></i></div><b id="thresholdCurrentText">0%</b></div>
+              <div class="threshold-row"><span>Voltage</span><div class="thin-track"><i id="thresholdVoltage"></i></div><b id="thresholdVoltageText">0%</b></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ANALYTICS -->
+        <section class="page" id="page-analytics">
+          <div class="page-title">
+            <div><div class="eyebrow">PERFORMANCE INSIGHTS</div><h1>Analytics</h1><p>Explore consumption patterns and electrical quality.</p></div>
+            <div class="segmented"><button class="active">Live</button><button>1H</button><button>6H</button><button>1D</button><button>7D</button><button>30D</button></div>
+          </div>
+          <div class="kpi-grid six">
+            <div class="card kpi"><span class="kpi-icon purple"><i class="fa-solid fa-plug"></i></span><small>Average Power</small><strong id="avgPower">0.0 W</strong><em>+6.2%</em></div>
+            <div class="card kpi"><span class="kpi-icon orange"><i class="fa-solid fa-bolt"></i></span><small>Average Voltage</small><strong id="avgVolt">0.0 V</strong><em>+1.1%</em></div>
+            <div class="card kpi"><span class="kpi-icon blue"><i class="fa-solid fa-wave-square"></i></span><small>Average Current</small><strong id="avgCurr">0.00 A</strong><em>+2.3%</em></div>
+            <div class="card kpi"><span class="kpi-icon green"><i class="fa-solid fa-gauge-high"></i></span><small>Power Factor</small><strong id="avgPf">0.00</strong><em>+0.4%</em></div>
+            <div class="card kpi"><span class="kpi-icon yellow"><i class="fa-solid fa-chart-simple"></i></span><small>Total Energy</small><strong id="analyticsEnergy">0.00 kWh</strong><em>+12.8%</em></div>
+            <div class="card kpi"><span class="kpi-icon pink"><i class="fa-solid fa-arrow-trend-up"></i></span><small>Peak Power</small><strong id="peakPower">0.0 W</strong><em>Today</em></div>
+          </div>
+          <div class="section-grid two">
+            <article class="card chart-card"><div class="card-head"><div><h3>Power Trend</h3><small>Average by interval</small></div><span class="chart-chip">Watts</span></div><div class="chart-container"><canvas id="analyticsPower"></canvas></div></article>
+            <article class="card chart-card"><div class="card-head"><div><h3>Voltage & Current</h3><small>Electrical quality</small></div><span class="legend-inline"><i class="v"></i>Voltage <i class="c"></i>Current</span></div><div class="chart-container"><canvas id="analyticsVoltageCurrent"></canvas></div></article>
+          </div>
+          <div class="section-grid three">
+            <article class="card chart-card"><div class="card-head"><div><h3>Energy Distribution</h3><small>By usage category</small></div></div><div class="donut-container"><canvas id="energyDonut"></canvas><div class="donut-label"><strong id="donutTotal">—</strong><span>kWh</span></div></div></article>
+            <article class="card chart-card"><div class="card-head"><div><h3>Hourly Consumption</h3><small>Last 12 hours</small></div></div><div class="chart-container compact"><canvas id="hourlyChart"></canvas></div></article>
+            <article class="card usage-summary"><div class="card-head"><div><h3>Usage Summary</h3><small>Selected period</small></div></div><div class="summary-list"><div><span>Peak Usage</span><b id="summaryPeak">0.0 W</b></div><div><span>Lowest Usage</span><b id="summaryLow">0.0 W</b></div><div><span>Total Runtime</span><b>01:00:00</b></div><div><span>Power Factor</span><b id="summaryPf">0.00</b></div></div></article>
+          </div>
+        </section>
+
+        <!-- ENERGY -->
+        <section class="page" id="page-energy">
+          <div class="page-title"><div><div class="eyebrow">ELECTRICAL TELEMETRY</div><h1>Energy</h1><p>Detailed PZEM measurements and live electrical quality.</p></div><button class="primary-btn" id="energyExport"><i class="fa-solid fa-download"></i> Export</button></div>
+          <div class="energy-grid">
+            <article class="card realtime-card"><div class="card-head"><div><h3>Real-time Readings</h3><small>Latest sensor sample</small></div><span class="mini-status">PZEM</span></div>
+              <div class="reading-list">
+                <div><span>Voltage</span><strong id="energyVoltage">0.0 V</strong></div>
+                <div><span>Current</span><strong id="energyCurrent">0.00 A</strong></div>
+                <div><span>Active Power</span><strong id="energyPower">0.0 W</strong></div>
+                <div><span>Frequency</span><strong id="energyFrequency">50.0 Hz</strong></div>
+                <div><span>Power Factor</span><strong id="energyPF">0.00</strong></div>
+                <div><span>Total Energy</span><strong id="energyTotal">0.00 kWh</strong></div>
+              </div>
+            </article>
+            <article class="card chart-card large"><div class="card-head"><div><h3>Electrical Load</h3><small>Power and current response</small></div><span class="chart-chip">LIVE</span></div><div class="chart-container tall"><canvas id="energyChart"></canvas></div></article>
+          </div>
+          <div class="section-grid three">
+            <article class="card mini-stat"><small>Energy this hour</small><strong id="hourEnergy">0.00 kWh</strong></article>
+            <article class="card mini-stat"><small>Projected daily</small><strong id="dailyProjection">0.00 kWh</strong></article>
+            <article class="card mini-stat"><small>Projected bill</small><strong id="dailyBill">₹ 0.00</strong></article>
+          </div>
+        </section>
+
+        <!-- ALERTS -->
+        <section class="page" id="page-alerts">
+          <div class="page-title"><div><div class="eyebrow">SAFETY & NOTIFICATIONS</div><h1>Alerts</h1><p>Monitor critical conditions, warnings, and resolved events.</p></div><button class="primary-btn" id="alertExport"><i class="fa-solid fa-download"></i> Export Alerts</button></div>
+          <div class="alert-overview four">
+            <div class="card alert-kpi critical"><span><i class="fa-solid fa-bolt"></i></span><div><small>Critical</small><strong id="criticalCount">0</strong></div></div>
+            <div class="card alert-kpi warning"><span><i class="fa-solid fa-triangle-exclamation"></i></span><div><small>Warning</small><strong id="warningCount">0</strong></div></div>
+            <div class="card alert-kpi info"><span><i class="fa-solid fa-circle-info"></i></span><div><small>Info</small><strong id="infoCount">0</strong></div></div>
+            <div class="card alert-kpi resolved"><span><i class="fa-solid fa-circle-check"></i></span><div><small>Resolved Today</small><strong id="resolvedCount">0</strong></div></div>
+          </div>
+          <div class="alert-layout">
+            <article class="card alert-list-card"><div class="alert-tabs"><button class="active">All Alerts</button><button>Critical</button><button>Warning</button><button>Info</button><button>Resolved</button></div><div class="alert-list" id="alertList"></div></article>
+            <article class="card alert-detail-card"><div class="card-head"><h3>Alert Details</h3><span id="detailState" class="severity critical">CRITICAL</span></div><div id="alertDetails"><div class="empty-detail">Select an alert to view details.</div></div></article>
+          </div>
+        </section>
+
+        <!-- REPORTS -->
+        <section class="page" id="page-reports">
+          <div class="page-title"><div><div class="eyebrow">PERIODIC REPORTING</div><h1>Reports</h1><p>Summarize energy performance for daily, weekly, monthly, or yearly periods.</p></div><button class="primary-btn" id="reportExport"><i class="fa-solid fa-file-arrow-down"></i> Download Full Report</button></div>
+          <div class="segmented report-segment"><button class="active">Daily</button><button>Weekly</button><button>Monthly</button><button>Yearly</button></div>
+          <div class="kpi-grid five">
+            <div class="card kpi"><small>Total Energy</small><strong id="reportKpiEnergy">—</strong><em>Firebase data</em></div>
+            <div class="card kpi"><small>Estimated Bill</small><strong id="reportKpiBill">—</strong><em>Live tariff</em></div>
+            <div class="card kpi"><small>Average Power</small><strong id="reportKpiAvg">—</strong><em>Live data</em></div>
+            <div class="card kpi"><small>Peak Power</small><strong id="reportKpiPeak">—</strong><em>Live data</em></div>
+            <div class="card kpi"><small>Power Factor</small><strong id="reportKpiPf">—</strong><em>Live data</em></div>
+          </div>
+          <div class="section-grid two">
+            <article class="card chart-card"><div class="card-head"><div><h3>Energy Consumption Overview</h3><small>Daily energy profile</small></div><span class="chart-chip">kWh</span></div><div class="chart-container"><canvas id="reportEnergy"></canvas></div></article>
+            <article class="card chart-card"><div class="card-head"><div><h3>Energy Distribution</h3><small>Appliance categories</small></div></div><div class="donut-container"><canvas id="reportDonut"></canvas><div class="donut-label"><strong id="reportDonutTotal">—</strong><span>kWh</span></div></div></article>
+          </div>
+          <div class="section-grid two">
+            <article class="card table-card"><div class="card-head"><div><h3>Daily Energy Summary</h3><small>Last 7 days</small></div></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Energy</th><th>Avg Power</th><th>Peak</th><th>Bill</th></tr></thead><tbody id="reportTable"></tbody></table></div></article>
+            <article class="card insight-card"><div class="card-head"><div><h3>Key Insights</h3><small>Generated from recorded usage</small></div></div><div class="insight-list"><div><i class="fa-solid fa-arrow-trend-up"></i><span>Morning usage is trending 12% higher than the previous period.</span></div><div><i class="fa-solid fa-leaf"></i><span>Power factor remains in a healthy range above 0.90.</span></div><div><i class="fa-solid fa-clock"></i><span>Peak load typically occurs between 10:00 and 13:00.</span></div></div></article>
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="page" id="page-settings">
+          <div class="page-title"><div><div class="eyebrow">CONFIGURATION</div><h1>Settings</h1><p>Configure the application, database, safety thresholds, and notifications.</p></div><button class="primary-btn" id="saveSettingsTop"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button></div>
+          <form id="settingsForm" class="settings-grid">
+            <article class="card settings-card"><div class="settings-card-title"><span class="icon-glow blue"><i class="fa-solid fa-window-maximize"></i></span><div><h3>Website Configuration</h3><small>Branding shown in the application.</small></div></div>
+              <div class="logo-settings">
+                <div class="logo-preview-wrap">
+                  <img id="logoPreview" class="logo-preview" alt="Logo preview" hidden>
+                  <div id="logoPreviewFallback" class="logo-preview-fallback">te<span>.</span></div>
+                </div>
+                <div class="logo-controls">
+                  <label class="file-label" for="settingLogo"><i class="fa-solid fa-upload"></i> Change Logo</label>
+                  <input id="settingLogo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
+                  <button type="button" class="ghost-btn small-btn" id="removeLogo"><i class="fa-solid fa-trash"></i> Remove</button>
+                  <small>PNG, JPG, WEBP or SVG. The selected logo is resized and stored locally in this browser.</small>
+                </div>
+              </div>
+              <label>Website / Application Name<input id="settingAppName" value="AR INOVATION HUB" /></label>
+              <label>Browser Tab Title<input id="settingTabTitle" value="AR INOVATION HUB Monitor" /></label>
+            </article>
+            <article class="card settings-card"><div class="settings-card-title"><span class="icon-glow orange"><i class="fa-solid fa-indian-rupee-sign"></i></span><div><h3>Electricity</h3><small>Billing calculation.</small></div></div>
+              <label>Electricity Rate (₹ / kWh)<input id="settingRate" type="number" min="0" step="0.01" value="7" /></label>
+              <div class="live-config-note"><i class="fa-solid fa-circle-info"></i><span>Live mode only. The dashboard reads real values from Firebase and shows “—” until data arrives.</span></div>
+            </article>
+            <article class="card settings-card"><div class="settings-card-title"><span class="icon-glow green"><i class="fa-solid fa-database"></i></span><div><h3>Firebase / Database</h3><small>Connects this website to Firebase Realtime Database. Only browser-safe Firebase configuration belongs here.</small></div></div>
+              <label>Firebase API Key<input id="settingApiKey" type="password" placeholder="AIza..." autocomplete="off" /></label>
+              <label>Firebase Auth Domain<input id="settingAuthDomain" type="text" placeholder="your-project.firebaseapp.com" autocomplete="off" /></label>
+              <label>Database URL<input id="settingDbUrl" type="url" placeholder="https://your-project-default-rtdb.firebaseio.com" /></label>
+              <label>Database Path<input id="settingDbPath" value="/pzem/readings/latest" /></label>
+              <label>History Path<input id="settingHistoryPath" value="/pzem/readings/history" /></label>
+              <div class="live-config-note"><i class="fa-solid fa-lock"></i><span>Do not put SMTP passwords, service-account keys, or other privileged secrets in the browser.</span></div>
+            </article>
+            <article class="card settings-card"><div class="settings-card-title"><span class="icon-glow purple"><i class="fa-solid fa-shield-halved"></i></span><div><h3>Overload Email Alert</h3><small>Use a secure backend function to send emails.</small></div></div>
+              <div class="switch-row"><span><b>Enable automatic email alerts</b><small>Cooldown prevents spam.</small></span><label class="switch"><input id="settingEmailEnabled" type="checkbox" checked /><i></i></label></div>
+              <label>Recipient Email<input id="settingRecipient" type="email" placeholder="alerts@example.com" /></label>
+              <label>Email Subject<input id="settingSubject" value="AR INOVATION HUB — Overload Detected" /></label>
+              <label>Email Alert Endpoint (secure backend)<input id="settingEmailEndpoint" type="url" placeholder="https://your-function.example.com/send-alert" /></label>
+            </article>
+            <article class="card settings-card"><div class="settings-card-title"><span class="icon-glow red"><i class="fa-solid fa-triangle-exclamation"></i></span><div><h3>Safety Thresholds</h3><small>Trigger visible alerts from live telemetry.</small></div></div>
+              <div class="split-inputs"><label>Overload (W)<input id="settingOverload" type="number" min="1" value="2500" /></label><label>Current (A)<input id="settingCurrentThreshold" type="number" min="0.1" step="0.1" value="10" /></label></div>
+              <label>Voltage (V)<input id="settingVoltageThreshold" type="number" min="1" step="1" value="255" /></label>
+              <label>Alert Cooldown (seconds)<input id="settingCooldown" type="number" min="10" value="60" /></label>
+            </article>
+            <article class="card settings-card"><div class="settings-card-title"><span class="icon-glow yellow"><i class="fa-solid fa-sliders"></i></span><div><h3>Additional Features</h3><small>User experience preferences.</small></div></div>
+              <div class="switch-row"><span><b>Notification sound</b><small>Play a sound for new critical alerts.</small></span><label class="switch"><input id="settingSound" type="checkbox" checked /><i></i></label></div>
+              <div class="switch-row"><span><b>Auto-refresh</b><small>Refresh the Firebase connection periodically.</small></span><label class="switch"><input id="settingRefresh" type="checkbox" checked /><i></i></label></div>
+              <div class="switch-row"><span><b>Dark mode</b><small>Futuristic dark theme.</small></span><label class="switch"><input id="settingDark" type="checkbox" checked /><i></i></label></div>
+            </article>
+            <div class="settings-footer"><button type="button" class="ghost-btn" id="resetSettings">Reset</button><button type="submit" class="primary-btn"><i class="fa-solid fa-floppy-disk"></i> Save Configuration</button></div>
+          </form>
+        </section>
+      </section>
+
+      <footer class="footer">AR INOVATION HUB <span>•</span> ESP32 + PZEM-004T v3.0 <span>•</span> Firebase-ready</footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"><i class="fa-solid fa-check-circle"></i><span>Saved</span></div>
+
+  <div class="modal-backdrop" id="criticalModal">
+    <div class="modal-card critical-modal">
+      <button class="modal-close" id="closeCritical"><i class="fa-solid fa-xmark"></i></button>
+      <div class="critical-icon"><i class="fa-solid fa-bolt"></i></div>
+      <div class="eyebrow danger">CRITICAL ALERT</div>
+      <h2>Overload Detected</h2>
+      <p>Power usage is above the configured safe threshold.</p>
+      <div class="modal-reading"><span>Measured</span><strong id="criticalMeasured">0 W</strong><span>Threshold</span><strong id="criticalThreshold">2500 W</strong></div>
+      <div class="modal-actions"><button class="ghost-btn" id="dismissCritical">Dismiss</button><button class="primary-btn" id="openAlerts">View Alert Details</button></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

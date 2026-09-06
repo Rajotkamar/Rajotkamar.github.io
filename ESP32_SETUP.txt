@@ -1,0 +1,49 @@
+AR INOVATION HUB - ESP32 LIVE SETUP
+====================================
+
+Firebase is already filled in:
+Project: smart-energy-meter-628bc
+Database:
+https://smart-energy-meter-628bc-default-rtdb.asia-southeast1.firebasedatabase.app/
+
+DO NOT put your Wi-Fi password in a public GitHub repository.
+
+1. Open:
+   hardware/esp32_pzem_example.ino
+
+2. The supplied sketch has the Wi-Fi values configured for your ESP32:
+   WIFI_SSID = Mr.Alok
+   WIFI_PASSWORD = nothing123
+   Change them if you later use another network.
+
+3. Arduino IDE libraries:
+   - PZEM004Tv30
+   - Firebase Arduino Client Library for ESP8266 and ESP32 (Mobizt)
+
+4. Board:
+   Select your ESP32 board and correct COM port.
+
+5. PZEM UART pins used by this sketch:
+   ESP32 GPIO16 = RX
+   ESP32 GPIO17 = TX
+
+   PZEM TX -> ESP32 RX (GPIO16)
+   PZEM RX -> ESP32 TX (GPIO17)
+   PZEM GND -> ESP32 GND
+
+6. Upload and open Serial Monitor at 115200 baud.
+
+7. Expected successful messages:
+   Wi-Fi connected
+   Anonymous Firebase sign-in OK
+   V ... | I ... | P ... | E ... | F ... | PF ...
+
+8. Firebase Realtime Database should receive:
+   /pzem/readings/latest
+   /pzem/readings/history/<push-id>
+
+9. The website reads the same paths.
+
+SAFETY:
+Mains electricity is dangerous. Do not work on live AC wiring. Have qualified
+personnel perform/verify mains-side PZEM wiring and enclosure installation.

@@ -1,0 +1,12 @@
+{
+  "name": "AR INOVATION HUB",
+  "short_name": "AR INOVATION HUB",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#050711",
+  "theme_color": "#060918",
+  "icons": [
+    {"src":"assets/ar-inovation-hub-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"assets/ar-inovation-hub-512.png","sizes":"512x512","type":"image/png"}
+  ]
+}
